@@ -1,19 +1,18 @@
 const mongoose = require('mongoose')
+
 const productSchema = mongoose.Schema(
     {
-        productName: {
-            type: String,
-            required: [true, "No product name found. please try to scan the qr code again."]
-        },
         productID: {
             type: String,
             required: true,
-            default: ""
+        },
+        productName: {
+            type: String,
+            required: true
         },
         productImage: {
             type: String,
-            required: true,
-            default: ""
+            required: false,
         },
         price: {
             type: Number,
@@ -23,10 +22,13 @@ const productSchema = mongoose.Schema(
         expirationDate: {
             type: String,
             required: true,
-            default: ""
         }
     }, 
     {
         timestamps: true
     }
 )
+
+const Product = mongoose.model('Product', productSchema);
+
+module.exports = Product;
