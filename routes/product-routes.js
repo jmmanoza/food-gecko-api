@@ -6,9 +6,9 @@ product_router.post('/add', async(req, res) => {
     try {
         const product = await Product.create(req.body)
         res.status(200).json({
-            "message": "GET Request successful",
+            "message": `${req.method} Request successful`,
             "result": product,
-            "statusCode": 200,
+            "statusCode": res.statusCode,
             "version": "1.0"
         });
     } catch(error) {
@@ -22,9 +22,9 @@ product_router.get('/', async(req, res) => {
     try {
         const products = await Product.find({})
         res.status(200).json({
-            "message": "GET Request successful",
+            "message": `${req.method} Request successful`,
             "results": products,
-            "statusCode": 200,
+            "statusCode": res.statusCode,
             "version": "1.0"
         });
     } catch(error) {
@@ -42,9 +42,9 @@ product_router.get('/:id', async(req, res) => {
             return res.status(404).json({message: `we cannot find any product with ID: ${id}`})
         }
         res.status(200).json({
-            "message": "GET Request successful",
+            "message": `${req.method} Request successful`,
             "result": product,
-            "statusCode": 200,
+            "statusCode": res.statusCode,
             "version": "1.0"
         });
     } catch(error) {
@@ -63,9 +63,9 @@ product_router.put('/update/:id', async(req, res) => {
         } 
         const updatedProduct = await Product.findById(id)
         res.status(200).json({
-            "message": "GET Request successful",
+            "message": `${req.method} Request successful`,
             "result": updatedProduct,
-            "statusCode": 200,
+            "statusCode": res.statusCode,
             "version": "1.0"
         });
     } catch(error) {
@@ -83,9 +83,9 @@ product_router.delete('/delete/:id', async(req, res) => {
             return res.status(404).json({message: `we cannot find any product with ID: ${id}`})
         } 
         res.status(200).json({
-            "message": "GET Request successful",
+            "message": "DELETE Request successful",
             "result": product,
-            "statusCode": 200,
+            "statusCode": res.statusCode,
             "version": "1.0"
         });
     } catch(error) {
