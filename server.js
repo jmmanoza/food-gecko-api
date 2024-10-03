@@ -3,8 +3,10 @@ const mongoose = require('mongoose')
 const app = express();
 const Product = require('./models/Product')
 const port = 3000;
+const dotenv = require("dotenv")
 
 app.use(express.json())
+dotenv.config()
 
 // Fetch a Product from ID Route
 app.get('/products/:id', async(req, res) => {
@@ -41,7 +43,7 @@ app.post('/products', async(req, res) => {
 })
 
 // start
-mongoose.connect("mongodb+srv://admin:unatoby123@food-gecko-api-cluster.wz05d.mongodb.net/?retryWrites=true&w=majority&appName=food-gecko-api-cluster")
+mongoose.connect(process.env.MONGO_URL)
 .then(()=> {
     console.log("connected to mongodb")
     app.listen(port, () => {
