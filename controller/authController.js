@@ -6,7 +6,7 @@ const createError = require('../utils/appError')
 // NOTE: Bump up this if there is new routes.
 const API_VERSION = "1.0";
 
-const signUp = async(req, res) => {
+const signup = async(req, res) => {
     try {
         const user = await User.findOne({email: req.body.email});
         
@@ -26,22 +26,57 @@ const signUp = async(req, res) => {
         
         res.status(201).json({
             "message": `${req.method} Request successful`,
-            "result": newUser,
-            "api_token": token,
+            "data": {
+                _id: newUser._id,
+                fullName: newUser.fullName,
+                username: newUser.username,
+                email: newUser.email,
+                profilePhoto: newUser.profilePhoto,
+                api_token: token
+            },
             "statusCode": res.statusCode,
             "version": `${API_VERSION}`
         });
     } catch(error) {
-        next(error)
+        console.log(error.message)
+        res.status(500).json({message: error.message})
     }
 }
 
-const login = async(req, res, next) => {
+const login = async(req, res) => {
     try {
+        const { email, password } = req.body;
+        const user = await User.findOne({email})
+
+        if (!user) {
+            return res.status(404).json({message: "User not found!"}) 
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, user.password)
+        if (!isPasswordValid) {
+            return res.status(401).json({message: "Invalid email or password!"}) 
+        }
+
+        const token = jwt.sign({_id: user._id}, 'secretkey123');
+
+        res.status(200).json({
+            "message": `${req.method} Request successful`,
+            "data": {
+                _id: user._id,
+                fullName: user.fullName,
+                username: user.username,
+                email: user.email,
+                profilePhoto: user.profilePhoto,
+                api_token: token
+            },
+            "statusCode": res.statusCode,
+            "version": `${API_VERSION}`
+        });
 
     } catch(error) {
-        next(error)
+        console.log(error.message)
+        res.status(500).json({message: error.message})
     }
 }
 
-module.exports = { signUp, login };
+module.exports = { signup, login };
