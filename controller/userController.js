@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const bcrypt = require('bcryptjs')
 
 const API_VERSION = "1.0";
 
@@ -79,4 +80,88 @@ const updateUser = async (req, res) => {
     }
 }
 
-module.exports = { getUser, updateUser }
+const updatePassword = async(req, res) => {
+    try {
+        const user = await User.findById({_id: req.body.id})
+        if (!user) {
+            return res.status(404).send({
+                succes: false,
+                message: "user not found!"
+            })
+        }
+        const {oldPassword, newPassword } = req.body
+        if (!oldPassword || !newPassword) {
+            return res.status(500).send({
+                succes: false,
+                message: "Please provide old or new password!"
+            })
+        }
+        const isOldPasswordMatch = await bcrypt.compare(oldPassword, user.password)
+        if (!isOldPasswordMatch) {
+            return res.status(401).json({message: "Invalid old password!"}) 
+        }
+       
+        const hashedPassword = await bcrypt.hash(newPassword, 12);
+        user.password = hashedPassword
+        await user.save()
+
+        res.status(200).send({
+            succes: true,
+            message: "Password updated."
+        })
+
+    } catch {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            "statusCode": res.statusCode,
+            message: error.message
+        })
+    }
+}
+
+const resetPassword = async(req, res) => {
+    try {
+        const {email, password, confirmPassword} = req.body
+        if (!email || !password || !confirmPassword) {
+            return res.status(500).json({
+                success: false,
+                message: "Please provide all fields."
+            })
+        }
+        if (password != confirmPassword) {
+            return res.status(401).json({message: "Passwords do not match!"})
+        }
+
+        const user = await User.findOne({email})
+
+        if (!user) {
+            return res.status(500).json({
+                success: false,
+                message: "User not found."
+            })
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+        user.password = hashedPassword
+        user.confirmPassword = hashedPassword
+        await user.save()
+
+        res.status(200).send({
+            "message": `reset password successful`,
+            "statusCode": res.statusCode,
+            "version": `${API_VERSION}`
+        })
+
+    } catch {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            "statusCode": res.statusCode,
+            message: error.message
+        })
+    }
+}
+
+
+module.exports = { getUser, updateUser, updatePassword, resetPassword }
