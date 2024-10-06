@@ -163,5 +163,33 @@ const resetPassword = async(req, res) => {
     }
 }
 
+const deleteUser = async(req, res) => {
+    try {
+        const {id} = req.params
+        const user = await User.findByIdAndDelete(id)
+        if (!user) {
+            return res.status(404).json({message: `we cannot find any user with ID: ${id}`})
+        } 
+        res.status(200).json({
+            "message": `${req.method} Request successful`,
+            "result": {
+                fullName: user.fullName,
+                username: user.username,
+                email: user.email,
+                profilePhoto: user.profilePhoto
+            },
+            "statusCode": res.statusCode,
+            "version": `${API_VERSION}`
+        });
 
-module.exports = { getUser, updateUser, updatePassword, resetPassword }
+    } catch {
+        console.log(error)
+        res.status(500).json({
+            success: false,
+            "statusCode": res.statusCode,
+            message: error.message
+        })
+    }
+}
+
+module.exports = { getUser, updateUser, updatePassword, resetPassword, deleteUser }
