@@ -22,7 +22,9 @@ const signup = async(req, res) => {
             password: hashedPassword,
             confirmPassword: hashedPassword
         });
-        const token = jwt.sign({_id: newUser._id}, 'secretkey123');
+        const token = jwt.sign({_id: newUser._id}, `${process.env.JWT_SECRET_KEY}`, {
+            expiresIn: "7d",
+        });
         
         res.status(201).json({
             "message": `${req.method} Request successful`,
@@ -57,7 +59,9 @@ const login = async(req, res) => {
             return res.status(401).json({message: "Invalid email or password!"}) 
         }
 
-        const token = jwt.sign({_id: user._id}, 'secretkey123');
+        const token = jwt.sign({_id: user._id}, `${process.env.JWT_SECRET_KEY}`, {
+            expiresIn: "7d",
+        });
 
         res.status(200).json({
             "message": `${req.method} Request successful`,
