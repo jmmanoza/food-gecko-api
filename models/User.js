@@ -27,7 +27,11 @@ const UserSchema = mongoose.Schema(
         confirmPassword: {
             type: String,
             require: true
-        }
+        },
+        allProducts: [{
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Product'
+        }]
     }, 
     {
         timestamp: true

@@ -5,8 +5,14 @@ const API_VERSION = "1.0";
 
 // C - Add a product 
 const addProduct = async(req, res) => {
+    const userId = req.body.id;
     try {
-        const product = await Product.create(req.body)
+        const productRes = await Product.create({
+            ...req.body,
+            author: userId
+        })
+        const { author, ...product } = productRes.toObject();
+
         res.status(200).json({
             "message": `${req.method} Request successful`,
             "result": product,
@@ -22,7 +28,9 @@ const addProduct = async(req, res) => {
 // R - Get products 
 const getAllProducts = async(req, res) => {
     try {
-        const products = await Product.find({})
+        const userId = req.body.id;
+        const products = await Product.find({ author: userId }).select('-author');
+
         res.status(200).json({
             "message": `${req.method} Request successful`,
             "results": products,
@@ -64,6 +72,7 @@ const updateProduct = async(req, res) => {
             return res.status(404).json({message: `we cannot find any product with ID: ${id}`})
         } 
         const updatedProduct = await Product.findById(id)
+
         res.status(200).json({
             "message": `${req.method} Request successful`,
             "result": updatedProduct,

@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const User = require('./User')
 
 const productSchema = mongoose.Schema(
     {
@@ -19,6 +20,10 @@ const productSchema = mongoose.Schema(
         expirationDate: {
             type: String,
             required: true,
+        },
+        author: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
         }
     }, 
     {
