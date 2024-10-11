@@ -29,13 +29,25 @@ const addProduct = async(req, res) => {
 const getAllProducts = async(req, res) => {
     try {
         const userId = req.body.id;
-        const products = await Product.find({ author: userId }).select('-author');
+        const page = req.query.page * 1 || 1; 
+        const limit = req.query.limit * 1 || 10; 
+        const skip = (page - 1) * limit; 
+
+        const products = await Product.find({ author: userId })
+            .select('-author')
+            .skip(skip)
+            .limit(limit);
+
+        const totalProducts = await Product.countDocuments({ author: userId });
 
         res.status(200).json({
-            "message": `${req.method} Request successful`,
-            "results": products,
-            "statusCode": res.statusCode,
-            "version": `${API_VERSION}`
+            message: `${req.method} Request successful`,
+            statusCode: res.statusCode,
+            version: `${API_VERSION}`,
+            results: products,
+            total: totalProducts, 
+            currentPage: page,
+            pages: Math.ceil(totalProducts / limit), 
         });
     } catch(error) {
         console.log(error.message)
@@ -72,7 +84,6 @@ const updateProduct = async(req, res) => {
             return res.status(404).json({message: `we cannot find any product with ID: ${id}`})
         } 
         const updatedProduct = await Product.findById(id)
-
         res.status(200).json({
             "message": `${req.method} Request successful`,
             "result": updatedProduct,
